@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opsforge-api
+  labels:
+    app: opsforge-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: opsforge-api
+  template:
+    metadata:
+      labels:
+        app: opsforge-api
+    spec:
+      containers:
+        - name: api
+          image: opsforge-api:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 5
+            timeoutSeconds: 2
