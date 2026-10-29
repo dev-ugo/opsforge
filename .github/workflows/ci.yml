@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  checks:
+    name: Tests and security
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    env:
+      IMAGE: opsforge-api:${{ github.sha }}
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Scan current files for secrets
+        run: make secret-scan
+
+      - name: Run API tests
+        run: make api-test
+
+      - name: Check Dockerfile
+        run: docker build --check .
+
+      - name: Create image vulnerability report
+        run: |
+          mkdir -p .artifacts
+          make api-scan SCAN_EXIT_CODE=0 > .artifacts/trivy-report.log 2>&1
+          printf '%s\n' \
+            '### Image security' \
+            'HIGH findings are report-only while their review is paused. CRITICAL findings are blocking.' \
+            >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Block critical image vulnerabilities
+        run: make api-scan SCAN_SEVERITY=CRITICAL
+
+      - name: Upload image vulnerability report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: image-vulnerability-report
+          path: .artifacts/trivy-report.log
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 7

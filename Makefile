@@ -2,6 +2,8 @@
 
 KUBECTL := kubectl --context kind-opsforge --namespace default
 REPLICAS ?= 2
+SCAN_EXIT_CODE ?= 1
+SCAN_SEVERITY ?= HIGH,CRITICAL
 
 .PHONY: cluster-create deploy status scale port-forward
 
@@ -68,5 +70,18 @@ api-scan: api-build
 		$(TRIVY_IMAGE) image \
 		--input /scan/opsforge-api.tar \
 		--scanners vuln \
-		--severity HIGH,CRITICAL \
-		--exit-code 1
+		--severity "$(SCAN_SEVERITY)" \
+		--exit-code "$(SCAN_EXIT_CODE)"
+
+.PHONY: secret-scan
+
+secret-scan:
+	docker run --rm \
+		--mount type=bind,source="$(CURDIR)",target=/workspace,readonly \
+		--mount type=volume,source=opsforge-trivy-cache,target=/root/.cache/trivy \
+		$(TRIVY_IMAGE) fs \
+		--scanners secret \
+		--skip-dirs /workspace/.git,/workspace/.artifacts,/workspace/.venv \
+		--format template \
+		--template '{{ range . }}{{ if .Secrets }}Potential secret found in {{ .Target }}{{ "\n" }}{{ end }}{{ end }}' \
+		--exit-code 1 /workspace

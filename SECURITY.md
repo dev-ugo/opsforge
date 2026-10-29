@@ -49,3 +49,12 @@ These controls do not resolve the open Debian vulnerabilities.
 
 The vulnerability scan continues to fail on HIGH or CRITICAL findings.
 No vulnerability exclusions have been added.
+
+## CI Policy
+
+- API test failures and detected secrets fail the CI job.
+- CRITICAL image vulnerabilities fail the CI job.
+- HIGH image findings are temporarily report-only while their review is paused.
+- Image vulnerability reports are retained as CI artifacts for seven days.
+- Local `make api-scan` remains blocking for HIGH and CRITICAL findings.
+- Secret scanning covers the current working tree, excluding Git history.
