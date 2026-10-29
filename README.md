@@ -51,3 +51,16 @@ Kubernetes manifests are located in `k8s/api/`.
 
 The readiness probe checks `/health` before making a Pod
 available to receive traffic through the Service.
+
+## Quality and Security Checks
+
+Run the API HTTP contract tests:
+
+    make api-test
+
+Scan the runtime image for known vulnerabilities:
+
+    make api-scan
+
+The vulnerability scan fails when HIGH or CRITICAL findings
+are detected. Review the affected packages and available fixes.

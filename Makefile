@@ -46,3 +46,27 @@ api-status:
 
 api-port-forward:
 	$(KUBECTL) port-forward service/opsforge-api 8000:80
+
+TEST_IMAGE ?= opsforge-api-test:0.1.0
+
+.PHONY: api-test
+
+api-test:
+	docker build --target test -t $(TEST_IMAGE) .
+	docker run --rm --network none $(TEST_IMAGE)
+
+TRIVY_IMAGE ?= aquasec/trivy:0.76.1
+
+.PHONY: api-scan
+
+api-scan: api-build
+	mkdir -p .artifacts
+	docker image save --output .artifacts/opsforge-api.tar "$(IMAGE)"
+	docker run --rm \
+		--mount type=bind,source="$(CURDIR)/.artifacts",target=/scan,readonly \
+		--mount type=volume,source=opsforge-trivy-cache,target=/root/.cache/trivy \
+		$(TRIVY_IMAGE) image \
+		--input /scan/opsforge-api.tar \
+		--scanners vuln \
+		--severity HIGH,CRITICAL \
+		--exit-code 1

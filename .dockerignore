@@ -6,3 +6,4 @@
 **/.env.*
 .kube
 kubeconfig*
+.artifacts/
