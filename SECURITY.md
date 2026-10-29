@@ -5,24 +5,27 @@ Next review: 2026-11-05
 Environment: local kind learning lab
 Owner: Ugo
 
-## Open Findings
+## Findings Assessment
 
-The latest scan summary reports 44 HIGH findings and no CRITICAL
-findings. The last complete Debian report contains eight distinct CVEs.
+Assessment date: 2026-10-29
+Scope: current OpsForge image and hardened local kind deployment,
+running on WSL2 kernel 6.6.87.2.
 
-All findings below remain open. Applicability to this application
-has not yet been fully assessed.
+| CVE | Assessment | Evidence and remaining work |
+| --- | --- | --- |
+| CVE-2026-16742 | Not applicable to the checked runtime | systemd-homed was not found at its standard locations. |
+| CVE-2026-9538 | Not applicable to the checked Perl environment | Archive::Tar cannot be loaded through the current Perl include paths. |
+| CVE-2026-78409 | Required kernel condition absent | The documented vulnerable path requires Linux >= 6.15; the observed kernel is 6.6.87.2. |
+| CVE-2026-76642 | Mitigated; package remains unpatched | No active fstab entries; non-root execution and privilege escalation restrictions are configured. |
+| CVE-2026-78410 | Mitigated; package remains unpatched | No active fstab entries authorizing the described restricted mount scenario. |
+| CVE-2026-78408 | Open | nsenter is present. Review privileged use of --join-cgroup and inherited file descriptors. |
+| CVE-2026-54369 | Open | Review whether privileged callers can reach the affected libacl functions. |
+| CVE-2025-69720 | Open | infocmp is present. Evaluate removing this utility from the runtime image. |
 
-| CVE | Source package |
-| --- | --- |
-| CVE-2026-76642 | util-linux |
-| CVE-2026-78408 | util-linux |
-| CVE-2026-78409 | util-linux |
-| CVE-2026-78410 | util-linux |
-| CVE-2026-54369 | acl |
-| CVE-2025-69720 | ncurses |
-| CVE-2026-16742 | systemd |
-| CVE-2026-9538 | perl |
+These assessments must be reviewed when the image, application,
+kernel or deployment configuration changes.
+
+Trivy findings remain visible. No scanner exclusions have been added.
 
 ## Implemented Controls
 
