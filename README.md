@@ -69,3 +69,10 @@ are detected. Review the affected packages and available fixes.
 
 Changes are proposed through pull requests targeting `main`.
 The `Tests and security` CI check must pass before merging.
+
+## Container images
+
+After a successful CI run on `main`, the scanned runtime image is
+published to `ghcr.io/<owner>/opsforge-api:<commit-sha>`.
+
+Pull requests run tests and security checks without publishing images.
