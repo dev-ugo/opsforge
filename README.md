@@ -64,3 +64,8 @@ Scan the runtime image for known vulnerabilities:
 
 The vulnerability scan fails when HIGH or CRITICAL findings
 are detected. Review the affected packages and available fixes.
+
+## Development workflow
+
+Changes are proposed through pull requests targeting `main`.
+The `Tests and security` CI check must pass before merging.
