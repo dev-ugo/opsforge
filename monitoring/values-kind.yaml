@@ -1,0 +1,98 @@
+# Monitoring configuration for the local kind cluster.
+grafana:
+  adminUser: admin
+  defaultDashboardsTimezone: Europe/Zurich
+  deploymentStrategy:
+    type: Recreate
+  service:
+    type: ClusterIP
+  persistence:
+    enabled: true
+    type: pvc
+    storageClassName: standard
+    accessModes:
+      - ReadWriteOnce
+    size: 2Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
+  rbac:
+    namespaced: true
+  sidecar:
+    dashboards:
+      searchNamespace: monitoring
+    datasources:
+      searchNamespace: monitoring
+  grafana.ini:
+    auth.anonymous:
+      enabled: false
+    users:
+      allow_sign_up: false
+
+prometheus:
+  service:
+    type: ClusterIP
+  prometheusSpec:
+    retention: 3d
+    retentionSize: 6GiB
+    scrapeInterval: 30s
+    evaluationInterval: 30s
+    serviceMonitorNamespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: monitoring
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        memory: 2Gi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 8Gi
+
+alertmanager:
+  service:
+    type: ClusterIP
+  alertmanagerSpec:
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        memory: 256Mi
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: standard
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+
+# Skip optional control-plane scrape targets in this local lab.
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeProxy:
+  enabled: false
+
+defaultRules:
+  rules:
+    etcd: false
+    kubeControllerManager: false
+    kubeSchedulerAlerting: false
+    kubeSchedulerRecording: false
+    kubeProxy: false

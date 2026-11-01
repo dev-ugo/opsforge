@@ -27,6 +27,9 @@ jobs:
       IMAGE: opsforge-api:${{ github.sha }}
 
     steps:
+      - name: Validate dashboard JSON
+        run: python3 -m json.tool monitoring/dashboards/opsforge-api.json > /dev/null
+
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
