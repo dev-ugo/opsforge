@@ -76,3 +76,14 @@ After a successful CI run on `main`, the scanned runtime image is
 published to `ghcr.io/<owner>/opsforge-api:<commit-sha>`.
 
 Pull requests run tests and security checks without publishing images.
+
+## HTTP metrics
+
+The API exposes Prometheus metrics at `/metrics`.
+
+- `opsforge_http_requests_total` counts requests by HTTP status.
+- `opsforge_http_request_duration_seconds` measures processing time
+  until response headers.
+
+Health checks and metric scrapes are excluded.
+Metrics are held in memory per process and reset on restart.
