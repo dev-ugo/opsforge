@@ -39,7 +39,7 @@ api-run:
 api-load: api-build
 	kind load docker-image $(IMAGE) --name opsforge
 
-api-deploy: api-load
+api-deploy:
 	$(KUBECTL) apply -f k8s/api/
 	$(KUBECTL) rollout status deployment/opsforge-api --timeout=120s
 
