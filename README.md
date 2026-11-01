@@ -87,3 +87,15 @@ The API exposes Prometheus metrics at `/metrics`.
 
 Health checks and metric scrapes are excluded.
 Metrics are held in memory per process and reset on restart.
+
+## Kubernetes monitoring
+
+Prometheus and Grafana run in the `monitoring` namespace.
+
+- `make monitoring-install`: install or update the monitoring stack.
+- `make monitoring-status`: inspect monitoring workloads and storage.
+- `make grafana-port-forward`: access Grafana at http://localhost:3000.
+- `make monitoring-dashboard`: validate and deploy the API dashboard.
+
+The dashboard source is `monitoring/dashboards/opsforge-api.json`.
+Edit this file and redeploy it to update the dashboard.

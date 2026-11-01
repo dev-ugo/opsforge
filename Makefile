@@ -85,3 +85,34 @@ secret-scan:
 		--format template \
 		--template '{{ range . }}{{ if .Secrets }}Potential secret found in {{ .Target }}{{ "\n" }}{{ end }}{{ end }}' \
 		--exit-code 1 /workspace
+
+MONITORING_CHART_VERSION ?= 92.17.0
+
+.PHONY: monitoring-install monitoring-status grafana-port-forward
+
+monitoring-install:
+	helm upgrade --install monitoring \
+		oci://ghcr.io/prometheus-community/charts/kube-prometheus-stack \
+		--version "$(MONITORING_CHART_VERSION)" \
+		--kube-context kind-opsforge \
+		--namespace monitoring \
+		--create-namespace \
+		--values monitoring/values-kind.yaml \
+		--wait --timeout 10m
+
+monitoring-status:
+	kubectl --context kind-opsforge --namespace monitoring get pods,services,pvc
+
+grafana-port-forward:
+	kubectl --context kind-opsforge --namespace monitoring \
+		port-forward --address 127.0.0.1 service/monitoring-grafana 3000:80
+
+.PHONY: monitoring-dashboard-check monitoring-dashboard
+
+monitoring-dashboard-check:
+	python3 -m json.tool monitoring/dashboards/opsforge-api.json > /dev/null
+	kubectl kustomize monitoring/dashboards/ > /dev/null
+
+monitoring-dashboard: monitoring-dashboard-check
+	kubectl --context kind-opsforge --namespace monitoring \
+		apply -k monitoring/dashboards/

@@ -23,7 +23,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: api
-          image: ghcr.io/dev-ugo/opsforge-api@sha256:1123b3194de4cee445bdb4e6ab356ea8f5e3cf3077d1cd7cdf62091fb148f695
+          image: ghcr.io/dev-ugo/opsforge-api@sha256:50d50726e2ca54f86a53d96e9e1c6566b4106485362b3ecc2c272d7c469a0173
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
